@@ -2,7 +2,7 @@ import tkinter as tk
 import random
 
 YHDISTELMAT = [
-    "Ykköset", "Kakkoset", "Kolmoset", "Neloset", "Vitoset", "Kutoset",
+    "Ykköset", "Kakkoset", "Kolmoset", "Neloset", "Vitoset", "Kutoset", "Pari", "Kaksi paria",
     "Kolme samaa", "Neljä samaa", "Täyskäsi",
     "Pieni suora", "Iso suora", "Chance", "Yahtzee"
 ]
@@ -21,7 +21,7 @@ class Yahtzee:
         # Aloitetaan pelaajavalinnalla
         self.valitse_pelaajat()
 
-    # ---------- UI ----------
+    # UI 
     def luo_ui(self):
         main_frame = tk.Frame(self.root)
         main_frame.pack(fill="both", expand=True, padx=10, pady=10)
@@ -357,6 +357,22 @@ class Yahtzee:
         if y == "Vitoset": return counts[5]*5
         if y == "Kutoset": return counts[6]*6
 
+        if y == "Pari":
+            parit = [silmaluku for silmaluku, maara in counts.items() if maara >= 2]
+            if parit:
+                return max(parit) *2
+            return 0
+
+
+        if y == "Kaksi paria":
+            parit = [silmaluku for silmaluku, maara in counts.items() if maara >= 2]
+
+            if len(parit) >= 2:
+                kaksi_suurinta = sorted(parit, reverse=True)[:2]
+                return sum(s * 2 for s in kaksi_suurinta)
+
+            return 0
+
         if y == "Kolme samaa":
             for silmaluku, maara in counts.items():
                 if maara >= 3:
@@ -370,11 +386,9 @@ class Yahtzee:
             return 0
 
         if y == "Täyskäsi":
-            # Etsitään täyskäsi: pitää olla tarkalleen yksi kolmikko ja yksi pari
-            if sorted(counts.values()) == [2,3]:
+            if 3 in counts.values() and 2 in counts.values():
                 return sum(nopat)
-            else:
-                return 0
+            return 0
 
         if y == "Pieni suora":
            return 15 if set(nopat) == {1,2,3,4,5} else 0
